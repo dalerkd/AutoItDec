@@ -7,18 +7,18 @@ typedef struct _AUTOIT_EA06_DECRYPTHANDLE
 	UINT c0;
 	UINT c1;
 	UINT ame[17];
-}AUTOIT_EA06_DECRYPTHANDLE, *PAUTOIT_EA06_DECRYPTHANDLE;
+}AUTOIT_EA06_DECRYPTHANDLE, * PAUTOIT_EA06_DECRYPTHANDLE;
 
-double AUTOIT_EA06_Fpusht(AUTOIT_EA06_DECRYPTHANDLE *lpHandle);
-void AUTOIT_EA06_Srand(AUTOIT_EA06_DECRYPTHANDLE *lpHandle, UINT seed);
-BYTE AUTOIT_EA06_GetNext(AUTOIT_EA06_DECRYPTHANDLE *lpHandle);
+double AUTOIT_EA06_Fpusht(AUTOIT_EA06_DECRYPTHANDLE* lpHandle);
+void AUTOIT_EA06_Srand(AUTOIT_EA06_DECRYPTHANDLE* lpHandle, UINT seed);
+BYTE AUTOIT_EA06_GetNext(AUTOIT_EA06_DECRYPTHANDLE* lpHandle);
 
-double AUTOIT_EA06_Fpusht(AUTOIT_EA06_DECRYPTHANDLE *lpHandle) 
+double AUTOIT_EA06_Fpusht(AUTOIT_EA06_DECRYPTHANDLE* lpHandle)
 {
-	union 
+	union
 	{
 		double as_double;
-		struct 
+		struct
 		{
 			UINT lo;
 			UINT hi;
@@ -27,11 +27,11 @@ double AUTOIT_EA06_Fpusht(AUTOIT_EA06_DECRYPTHANDLE *lpHandle)
 
 #define ROFL(a, b) (( a << (b % (sizeof(a)<<3) ))  |  (a >> (  (sizeof(a)<<3)  -  (b % (sizeof(a)<<3 )) ) ))
 
-	UINT rolled = ROFL(lpHandle->ame[lpHandle->c0],9) +  ROFL(lpHandle->ame[lpHandle->c1],13);
+	UINT rolled = ROFL(lpHandle->ame[lpHandle->c0], 9) + ROFL(lpHandle->ame[lpHandle->c1], 13);
 
 	lpHandle->ame[lpHandle->c0] = rolled;
 
-	if (!lpHandle->c0--) 
+	if (!lpHandle->c0--)
 	{
 		lpHandle->c0 = 16;
 	}
@@ -48,9 +48,9 @@ double AUTOIT_EA06_Fpusht(AUTOIT_EA06_DECRYPTHANDLE *lpHandle)
 }
 
 
-void AUTOIT_EA06_Srand(AUTOIT_EA06_DECRYPTHANDLE *lpHandle, UINT seed) 
+void AUTOIT_EA06_Srand(AUTOIT_EA06_DECRYPTHANDLE* lpHandle, UINT seed)
 {
-	for (int i=0; i<17; i++) 
+	for (int i = 0; i < 17; i++)
 	{
 		seed *= 0x53A9B4FB;
 		seed = 1 - seed;
@@ -60,18 +60,18 @@ void AUTOIT_EA06_Srand(AUTOIT_EA06_DECRYPTHANDLE *lpHandle, UINT seed)
 	lpHandle->c0 = 0;
 	lpHandle->c1 = 10;
 
-	for (int i=0; i<9; i++)
+	for (int i = 0; i < 9; i++)
 	{
 		AUTOIT_EA06_Fpusht(lpHandle);
 	}
 }
 
-BYTE AUTOIT_EA06_GetNext(AUTOIT_EA06_DECRYPTHANDLE *l)
+BYTE AUTOIT_EA06_GetNext(AUTOIT_EA06_DECRYPTHANDLE* l)
 {
 	BYTE ret = 0;
 	AUTOIT_EA06_Fpusht(l);
 	double x = AUTOIT_EA06_Fpusht(l) * 256.0;
-	if ((int)x < 256) 
+	if ((int)x < 256)
 	{
 		ret = (BYTE)x;
 	}
@@ -83,9 +83,9 @@ BYTE AUTOIT_EA06_GetNext(AUTOIT_EA06_DECRYPTHANDLE *l)
 	return ret;
 }
 
-void AUTOIT_EA06_DeCrypt(BYTE *lpBuffer, UINT nSize, UINT nSeed)
+void AUTOIT_EA06_DeCrypt(BYTE* lpBuffer, UINT nSize, UINT nSeed)
 {
-	AUTOIT_EA06_DECRYPTHANDLE hDecHandle = {0};
+	AUTOIT_EA06_DECRYPTHANDLE hDecHandle = { 0 };
 	AUTOIT_EA06_Srand(&hDecHandle, (UINT)nSeed);
 
 	while (nSize--)
@@ -95,25 +95,27 @@ void AUTOIT_EA06_DeCrypt(BYTE *lpBuffer, UINT nSize, UINT nSeed)
 }
 
 //判断函数
-BOOL AUTOIT_EA06_IsEA06(AUTOIT3_DECOMPILER *lpDecHandle)
+BOOL AUTOIT_EA06_IsEA06(AUTOIT3_DECOMPILER* lpDecHandle)
 {
 	BOOL bResult = FALSE;
 
 	//16字节GUID
-	static const BYTE cbAutoGUID[] = 
+	static const BYTE cbAutoGUID[] =
 	{
-		0xA3, 0x48, 0x4B, 0xBE, 0x98, 0x6C, 0x4A, 0xA9, 
+		0xA3, 0x48, 0x4B, 0xBE, 0x98, 0x6C, 0x4A, 0xA9,
 		0x99, 0x4C, 0x53, 0x0A, 0x86, 0xD6, 0x48, 0x7D
 	};
 
 	//数据指针
-	BYTE *lpDataPtr = lpDecHandle->lpDataPtr;
+	BYTE* lpDataPtr = lpDecHandle->lpDataPtr;
 
+
+	BYTE* pTmp = lpDecHandle->lpFileBuf;
 
 LoopFind:
 
 	//压缩版本比较
-	do 
+	do
 	{
 		//GUID起始标识比较
 		int nRet = memcmp(lpDataPtr, cbAutoGUID, 16);
@@ -124,13 +126,13 @@ LoopFind:
 		lpDataPtr += 16;
 
 		//压缩版本"AU3!EA06"
-		static const BYTE cbAutoVersion[] = 
+		static const BYTE cbAutoVersion[] =
 		{
 			0x41, 0x55, 0x33, 0x21, 0x45, 0x41, 0x30, 0x36
 		};
 
 		//AUCN的修改版
-		static const BYTE cbAutoVersionMod[] = 
+		static const BYTE cbAutoVersionMod[] =
 		{
 			0x21, 0x2A, 0x55, 0x23, 0x41, 0x55, 0x43, 0x4E
 		};
@@ -156,8 +158,8 @@ LoopFind:
 	//没找到标识的时候需要浮动搜索
 	if (!bResult)
 	{
-		BYTE *pTmp = lpDecHandle->lpFileBuf;
-		for (DWORD i=0; i<lpDecHandle->dwFileSize; i++)
+		pTmp++;
+		while (pTmp < lpDecHandle->lpFileBuf + lpDecHandle->dwFileSize)
 		{
 			int nCmp = memcmp(cbAutoGUID, pTmp, sizeof(cbAutoGUID));
 			if (0 == nCmp)
@@ -179,10 +181,10 @@ LoopFind:
 }
 
 //计算文件校验和
-DWORD AUTOIT_EA06_CalcCheckSum(BYTE *lpBuffer, DWORD dwSize)
+DWORD AUTOIT_EA06_CalcCheckSum(BYTE* lpBuffer, DWORD dwSize)
 {
 	DWORD dwChkValue = 0;
-	if ( dwSize > 0 )
+	if (dwSize > 0)
 	{
 		DWORD dwValue = 1;
 		UINT nTmpValue1 = (WORD)dwValue;
@@ -193,8 +195,7 @@ DWORD AUTOIT_EA06_CalcCheckSum(BYTE *lpBuffer, DWORD dwSize)
 		{
 			nTmpValue1 = (nTmpValue1 + lpBuffer[dwIndex++]) % 0xFFF1;
 			nTmpValue2 = (nTmpValue1 + nTmpValue2) % 0xFFF1;
-		}
-		while (dwIndex < dwSize);
+		} while (dwIndex < dwSize);
 
 		dwChkValue = nTmpValue1 + (nTmpValue2 << 16);
 	}
@@ -205,25 +206,25 @@ DWORD AUTOIT_EA06_CalcCheckSum(BYTE *lpBuffer, DWORD dwSize)
 //反编译处理开始
 typedef struct _AUTOIT_DECOMPILE_STRUCT
 {
-	BYTE *lpInputPtr;	//输入缓冲
+	BYTE* lpInputPtr;	//输入缓冲
 	UINT nInputSize;	//输入缓冲大小
 	UINT nInputPos;		//输入缓冲起始偏移
 
-	BYTE *lpOutputPtr;	//输出缓冲
+	BYTE* lpOutputPtr;	//输出缓冲
 	UINT nOutputSize;	//输出缓冲大小
 	UINT nOutputPos;	//输出缓冲起始偏移
 
 	UINT nLineCount;	//反编译后代码行数
 	UINT nError;		//错误码
-}AUTOIT_EA06_DECOMPILE_STRUCT, *PAUTOIT_DECOMPILE_STRUCT;
+}AUTOIT_EA06_DECOMPILE_STRUCT, * PAUTOIT_DECOMPILE_STRUCT;
 
-BOOL EA06_ConvertOPCode2UnicodeScript(AUTOIT_EA06_DECOMPILE_STRUCT *lpDecObj);
+BOOL EA06_ConvertOPCode2UnicodeScript(AUTOIT_EA06_DECOMPILE_STRUCT* lpDecObj);
 
 
-BOOL AUTOIT_EA06_Decompile(AUTOIT3_DECOMPILER *lpDecHandle, DECOMPILE_CALLBACK lpfnDecCallback, DWORD dwContent)
+BOOL AUTOIT_EA06_Decompile(AUTOIT3_DECOMPILER* lpDecHandle, DECOMPILE_CALLBACK lpfnDecCallback, DWORD dwContent)
 {
 	//跳过16字节GUID及8字节版本标识,以及后面的16字节垃圾数据
-	BYTE *lpDataBufPtr = lpDecHandle->lpDataPtr + (16 + 8 + 16);
+	BYTE* lpDataBufPtr = lpDecHandle->lpDataPtr + (16 + 8 + 16);
 
 	//下面循环进行数据解密处理,脚本数据位于最前面
 	BOOL bRet = FALSE;
@@ -231,11 +232,11 @@ BOOL AUTOIT_EA06_Decompile(AUTOIT3_DECOMPILER *lpDecHandle, DECOMPILE_CALLBACK l
 	do
 	{
 		//解密文件标识字符串 "FILE"
-		BYTE *lpFileFlagPtr = lpDataBufPtr;
+		BYTE* lpFileFlagPtr = lpDataBufPtr;
 		AUTOIT_EA06_DeCrypt(lpFileFlagPtr, 4, 0x18EE);
 		lpDataBufPtr += 4;
 
-		CHAR *lpFileFlag = "FILE";
+		CHAR* lpFileFlag = "FILE";
 		if (0 != memcmp(lpFileFlag, lpFileFlagPtr, 4))
 		{
 			break;
@@ -246,38 +247,38 @@ BOOL AUTOIT_EA06_Decompile(AUTOIT3_DECOMPILER *lpDecHandle, DECOMPILE_CALLBACK l
 		dwFileCount++;
 
 		//脚本标识串长度
-		DWORD dwScriptFlagLen = *(DWORD *)lpDataBufPtr;
+		DWORD dwScriptFlagLen = *(DWORD*)lpDataBufPtr;
 		dwScriptFlagLen ^= 0xADBC;
 		lpDataBufPtr += 4;
 
 		//解密脚本标识字符串
-		WCHAR *lpFlagPtrScript = (WCHAR *)lpDataBufPtr;
-		AUTOIT_EA06_DeCrypt((BYTE *)lpFlagPtrScript, dwScriptFlagLen*sizeof(WCHAR), dwScriptFlagLen + 0xB33F);
-		lpDataBufPtr += (dwScriptFlagLen*sizeof(WCHAR));
+		WCHAR* lpFlagPtrScript = (WCHAR*)lpDataBufPtr;
+		AUTOIT_EA06_DeCrypt((BYTE*)lpFlagPtrScript, dwScriptFlagLen * sizeof(WCHAR), dwScriptFlagLen + 0xB33F);
+		lpDataBufPtr += (dwScriptFlagLen * sizeof(WCHAR));
 
 		//路径数据长度
-		DWORD dwPathLen = *(DWORD *)lpDataBufPtr;
+		DWORD dwPathLen = *(DWORD*)lpDataBufPtr;
 		dwPathLen ^= 0xF820;
 		lpDataBufPtr += 4;
 
 		//路径数据(UNICODE编码)
-		WCHAR *lpPathPtr = (WCHAR *)lpDataBufPtr;
-		AUTOIT_EA06_DeCrypt((BYTE *)lpPathPtr, dwPathLen*sizeof(WCHAR), dwPathLen + 0xF479);
-		lpDataBufPtr += (dwPathLen*sizeof(WCHAR));
+		WCHAR* lpPathPtr = (WCHAR*)lpDataBufPtr;
+		AUTOIT_EA06_DeCrypt((BYTE*)lpPathPtr, dwPathLen * sizeof(WCHAR), dwPathLen + 0xF479);
+		lpDataBufPtr += (dwPathLen * sizeof(WCHAR));
 
 		//COPY释放路径
 		lpDecHandle->decInfos.bPathUnicode = TRUE;
 		ZeroMemory(lpDecHandle->decInfos.szReleasePath, sizeof(lpDecHandle->decInfos.szReleasePath));
-		CopyMemory(lpDecHandle->decInfos.szReleasePath, lpPathPtr, dwPathLen*sizeof(WCHAR));
+		CopyMemory(lpDecHandle->decInfos.szReleasePath, lpPathPtr, dwPathLen * sizeof(WCHAR));
 
 		//解压缩到目标缓冲,这个版本没有加密种子了
 		DWORD dwOffset = 0;
-		BYTE *lpOutPtr = NULL;
+		BYTE* lpOutPtr = NULL;
 		DWORD dwOutSize = 0;
 		bRet = AUTOIT_EA06_FileDecompress(lpDataBufPtr, (DWORD)(lpDecHandle->dwDataSize - (lpDataBufPtr - lpDecHandle->lpDataPtr)), &dwOffset, &lpOutPtr, &dwOutSize, 0);
 		if (!bRet)
 		{
-			break;
+			continue;
 		}
 
 		if (NULL != lpDecHandle->decInfos.lpResultBuf)
@@ -292,7 +293,7 @@ BOOL AUTOIT_EA06_Decompile(AUTOIT3_DECOMPILER *lpDecHandle, DECOMPILE_CALLBACK l
 
 		//判断脚本标识
 		WCHAR szEA06_FlagString[MAX_PATH + 4] = L">>>AUTOIT SCRIPT<<<";
-		lpDecHandle->decInfos.bScript = (0 == memcmp(lpFlagPtrScript, szEA06_FlagString, dwScriptFlagLen*sizeof(WCHAR)));
+		lpDecHandle->decInfos.bScript = (0 == memcmp(lpFlagPtrScript, szEA06_FlagString, dwScriptFlagLen * sizeof(WCHAR)));
 		if (lpDecHandle->decInfos.bScript)
 		{
 			//这个系列的脚本只有UNICODE版本
@@ -301,14 +302,14 @@ BOOL AUTOIT_EA06_Decompile(AUTOIT3_DECOMPILER *lpDecHandle, DECOMPILE_CALLBACK l
 			//脚本数据还需要进行一次还原处理
 			//这里申请10倍于原缓冲的大小,肯定足够了
 			DWORD dwFinalOutSize = dwOutSize * 10;
-			BYTE *lpFinalResult = new BYTE[dwFinalOutSize];
+			BYTE* lpFinalResult = new BYTE[dwFinalOutSize];
 			ZeroMemory(lpFinalResult, dwFinalOutSize);
 
 			//需要自己写UNICODE标识
 			lpFinalResult[0] = 0xFF;
 			lpFinalResult[1] = 0xFE;
 
-			AUTOIT_EA06_DECOMPILE_STRUCT decObj = {0};
+			AUTOIT_EA06_DECOMPILE_STRUCT decObj = { 0 };
 			decObj.lpInputPtr = lpOutPtr + 4;
 			decObj.nInputSize = dwOutSize - 4;
 			decObj.nInputPos = 0;		//前4字节是最终的代码行数
@@ -317,7 +318,7 @@ BOOL AUTOIT_EA06_Decompile(AUTOIT3_DECOMPILER *lpDecHandle, DECOMPILE_CALLBACK l
 			decObj.nOutputSize = dwFinalOutSize - 2;
 			decObj.nOutputPos = 0;		//前2字节是UNICODE标识
 
-			decObj.nLineCount = *(DWORD *)lpOutPtr;
+			decObj.nLineCount = *(DWORD*)lpOutPtr;
 			decObj.nError = 0;
 
 			BOOL bResult = EA06_ConvertOPCode2UnicodeScript(&decObj);
@@ -349,17 +350,17 @@ BOOL AUTOIT_EA06_Decompile(AUTOIT3_DECOMPILER *lpDecHandle, DECOMPILE_CALLBACK l
 }
 
 //文件解压缩
-BOOL AUTOIT_EA06_FileDecompress(BYTE *lpInputBuf, DWORD dwInputSize, DWORD *lpdwInputOffset, BYTE **lpOutputBuf, DWORD *lpdwOutputSize, DWORD dwSeed)
+BOOL AUTOIT_EA06_FileDecompress(BYTE* lpInputBuf, DWORD dwInputSize, DWORD* lpdwInputOffset, BYTE** lpOutputBuf, DWORD* lpdwOutputSize, DWORD dwSeed)
 {
 	//输入缓冲
-	BYTE *lpDataBuffer = lpInputBuf;
+	BYTE* lpDataBuffer = lpInputBuf;
 
 	//压缩标识
 	BOOL bCompressFlag = lpDataBuffer[0];
 	lpDataBuffer += 1;
 
 	//压缩后大小
-	DWORD dwCompressSize = *(DWORD *)lpDataBuffer;
+	DWORD dwCompressSize = *(DWORD*)lpDataBuffer;
 	dwCompressSize ^= 0x87BC;
 	lpDataBuffer += 4;
 
@@ -370,12 +371,12 @@ BOOL AUTOIT_EA06_FileDecompress(BYTE *lpInputBuf, DWORD dwInputSize, DWORD *lpdw
 	}
 
 	//压缩前大小
-	DWORD dwUncompressSize = *(DWORD *)lpDataBuffer;
+	DWORD dwUncompressSize = *(DWORD*)lpDataBuffer;
 	dwUncompressSize ^= 0x87BC;
 	lpDataBuffer += 4;
 
 	//解压校验和
-	DWORD dwChkSum = *(DWORD *)lpDataBuffer;
+	DWORD dwChkSum = *(DWORD*)lpDataBuffer;
 	dwChkSum ^= 0xA685;
 	lpDataBuffer += 4;
 
@@ -383,7 +384,7 @@ BOOL AUTOIT_EA06_FileDecompress(BYTE *lpInputBuf, DWORD dwInputSize, DWORD *lpdw
 	lpDataBuffer += 16;
 
 	//解密数据,解密后如果是压缩的则是"EA06"开始
-	BYTE *lpCompressData = lpDataBuffer;
+	BYTE* lpCompressData = lpDataBuffer;
 	AUTOIT_EA06_DeCrypt(lpCompressData, dwCompressSize, dwSeed + 0x2477);
 	lpDataBuffer += dwCompressSize;
 
@@ -391,11 +392,12 @@ BOOL AUTOIT_EA06_FileDecompress(BYTE *lpInputBuf, DWORD dwInputSize, DWORD *lpdw
 	DWORD dwChkValue = AUTOIT_EA06_CalcCheckSum(lpCompressData, dwCompressSize);
 	if (dwChkValue != dwChkSum)
 	{
-		return FALSE;
+		MessageBoxA(0, "发现其中1个内含文件:校验失败 强行继续", 0, 0);
+		//return FALSE;
 	}
 
 	//输出信息
-	BYTE *lpResultPtr = NULL;
+	BYTE* lpResultPtr = NULL;
 	DWORD dwResultSize = 0;
 
 	//解压缩处理
@@ -409,9 +411,10 @@ BOOL AUTOIT_EA06_FileDecompress(BYTE *lpInputBuf, DWORD dwInputSize, DWORD *lpdw
 	else
 	{
 		//比较"EA06",如果不是则退出
-		if (0x36304145 != *(DWORD *)lpCompressData			//EA06
-			&& 0x4E435541 != *(DWORD *)lpCompressData)		//AUCN
+		if (0x36304145 != *(DWORD*)lpCompressData			//EA06
+			&& 0x4E435541 != *(DWORD*)lpCompressData)		//AUCN
 		{
+			MessageBoxA(0, "发现其中1个内含文件:标志位错误 跳过", 0, 0);
 			return FALSE;
 		}
 
@@ -432,7 +435,7 @@ BOOL AUTOIT_EA06_FileDecompress(BYTE *lpInputBuf, DWORD dwInputSize, DWORD *lpdw
 }
 
 //输出格式为UNICODE
-BOOL EA06_ConvertOPCode2UnicodeScript(AUTOIT_EA06_DECOMPILE_STRUCT *lpDecObj)
+BOOL EA06_ConvertOPCode2UnicodeScript(AUTOIT_EA06_DECOMPILE_STRUCT* lpDecObj)
 {
 	//不会有这么小的脚本,先过滤掉!
 	if (lpDecObj->nInputSize < 8)
@@ -446,104 +449,106 @@ BOOL EA06_ConvertOPCode2UnicodeScript(AUTOIT_EA06_DECOMPILE_STRUCT *lpDecObj)
 		return FALSE;
 	}
 
+	bool bNeedTipsUkOpCode = true;
+
 	//循环解析
 	DWORD dwProcessedLine = 0;
-	WCHAR *lpOutText = (WCHAR *)(lpDecObj->lpOutputPtr);
+	WCHAR* lpOutText = (WCHAR*)(lpDecObj->lpOutputPtr);
 	do
 	{
 		//取操作码
 		BYTE nOpCode = lpDecObj->lpInputPtr[lpDecObj->nInputPos++];
-		switch (nOpCode) 
+		switch (nOpCode)
 		{
 		case 0x05: /* <INT> */
+		{
+			//防止发生异常,保证4字节的数据长度在有效区域内
+			if (lpDecObj->nInputPos >= lpDecObj->nInputSize - 4)
 			{
-				//防止发生异常,保证4字节的数据长度在有效区域内
-				if (lpDecObj->nInputPos >= lpDecObj->nInputSize-4) 
-				{
-					lpDecObj->nError = 1;
-					break;
-				}
+				lpDecObj->nError = 1;
+				break;
+			}
 
-				//取数值
-				DWORD dwNumber = *(DWORD *)(&lpDecObj->lpInputPtr[lpDecObj->nInputPos]);
+			//取数值
+			DWORD dwNumber = *(DWORD*)(&lpDecObj->lpInputPtr[lpDecObj->nInputPos]);
 
-				//检测数值前面的正负符号以消除空格
-				if (lpDecObj->nOutputPos > 4)
+			//检测数值前面的正负符号以消除空格
+			if (lpDecObj->nOutputPos > 4)
+			{
+				if ((' ' == lpOutText[lpDecObj->nOutputPos - 1])
+					&& ('-' == lpOutText[lpDecObj->nOutputPos - 2])
+					&& (' ' == lpOutText[lpDecObj->nOutputPos - 3]))
 				{
-					if ((' ' == lpOutText[lpDecObj->nOutputPos-1])
-						&& ('-' == lpOutText[lpDecObj->nOutputPos-2])
-						&& (' ' == lpOutText[lpDecObj->nOutputPos-3]))
+					if (('=' == lpOutText[lpDecObj->nOutputPos - 4])
+						|| (',' == lpOutText[lpDecObj->nOutputPos - 4]))
 					{
-						if (('=' == lpOutText[lpDecObj->nOutputPos-4])
-							|| (',' == lpOutText[lpDecObj->nOutputPos-4]))
-						{
-							lpDecObj->nOutputPos--;
-						}						
+						lpDecObj->nOutputPos--;
 					}
 				}
-				
-				//统一用十六进制
-				WCHAR szIntNumber[32] = {0};
-				int nLen = wsprintfW(szIntNumber, L"0x%08X ", dwNumber);
-				
-				//COPY到输出缓冲
-				lstrcpyW(&lpOutText[lpDecObj->nOutputPos], szIntNumber);
-				lpDecObj->nOutputPos += nLen;
-				lpDecObj->nInputPos += 4;
-
-				break;
 			}
+
+			//统一用十六进制
+			WCHAR szIntNumber[32] = { 0 };
+			int nLen = wsprintfW(szIntNumber, L"0x%08X ", dwNumber);
+
+			//COPY到输出缓冲
+			lstrcpyW(&lpOutText[lpDecObj->nOutputPos], szIntNumber);
+			lpDecObj->nOutputPos += nLen;
+			lpDecObj->nInputPos += 4;
+
+			break;
+		}
 
 		case 0x10: /* <INT64> */
+		{
+			//防止发生异常,保证8字节的数据长度在有效区域内
+			if (lpDecObj->nInputPos >= lpDecObj->nInputSize - 8)
 			{
-				//防止发生异常,保证8字节的数据长度在有效区域内
-				if (lpDecObj->nInputPos >= lpDecObj->nInputSize-8)
-				{
-					lpDecObj->nError = 1;
-					break;
-				}
-
-				//统一用十六进制(需要分两段进行处理)
-				DWORD dwLow = *(DWORD*)(&lpDecObj->lpInputPtr[lpDecObj->nInputPos]);
-				DWORD dwHigh = *(DWORD*)(&lpDecObj->lpInputPtr[lpDecObj->nInputPos+4]);
-
-				UINT64 val = dwHigh;
-				val = (val << 32) + dwLow;
-
-				WCHAR szINT64Number[32] = {0};
-				int nLen = wsprintfW(szINT64Number, L"%I64d", val);
-
-				//COPY到输出缓冲
-				lstrcpyW(&lpOutText[lpDecObj->nOutputPos], szINT64Number);
-				lpDecObj->nOutputPos += nLen;
-				lpDecObj->nInputPos += 8;
-				
+				lpDecObj->nError = 1;
 				break;
 			}
+
+			//统一用十六进制(需要分两段进行处理)
+			DWORD dwLow = *(DWORD*)(&lpDecObj->lpInputPtr[lpDecObj->nInputPos]);
+			DWORD dwHigh = *(DWORD*)(&lpDecObj->lpInputPtr[lpDecObj->nInputPos + 4]);
+
+			UINT64 val = dwHigh;
+			val = (val << 32) + dwLow;
+
+			WCHAR szINT64Number[32] = { 0 };
+			int nLen = wsprintfW(szINT64Number, L"%I64d", val);
+
+			//COPY到输出缓冲
+			lstrcpyW(&lpOutText[lpDecObj->nOutputPos], szINT64Number);
+			lpDecObj->nOutputPos += nLen;
+			lpDecObj->nInputPos += 8;
+
+			break;
+		}
 
 		case 0x20: /* <DOUBLE> */
+		{
+			//防止发生异常,保证8字节的数据长度在有效区域内
+			if (lpDecObj->nInputPos >= lpDecObj->nInputSize - 8)
 			{
-				//防止发生异常,保证8字节的数据长度在有效区域内
-				if (lpDecObj->nInputPos >= lpDecObj->nInputSize-8) 
-				{
-					lpDecObj->nError = 1;
-					break;
-				}
-
-				//常规方式
-				WCHAR szDoubleNumber[64] = {0};
-				double val = *(double *)&lpDecObj->lpInputPtr[lpDecObj->nInputPos];
-				int nLen = _snwprintf(szDoubleNumber, 64, L"%g ", val);
-
-				//COPY到输出缓冲
-				lstrcpyW(&lpOutText[lpDecObj->nOutputPos], szDoubleNumber);
-				lpDecObj->nOutputPos += nLen;
-				lpDecObj->nInputPos += 8;
-
+				lpDecObj->nError = 1;
 				break;
 			}
 
-			//语法结构部分
+			//常规方式
+			WCHAR szDoubleNumber[64] = { 0 };
+			double val = *(double*)&lpDecObj->lpInputPtr[lpDecObj->nInputPos];
+			int nLen = _snwprintf(szDoubleNumber, 64, L"%g ", val);
+
+			//COPY到输出缓冲
+			lstrcpyW(&lpOutText[lpDecObj->nOutputPos], szDoubleNumber);
+			lpDecObj->nOutputPos += nLen;
+			lpDecObj->nInputPos += 8;
+
+			break;
+		}
+
+		//语法结构部分
 		case 0x30: /* KEYWORD */	//关键字
 		case 0x31: /* COMMAND */	//命令
 		case 0x32: /* MACRO */		//宏
@@ -552,59 +557,59 @@ BOOL EA06_ConvertOPCode2UnicodeScript(AUTOIT_EA06_DECOMPILE_STRUCT *lpDecObj)
 		case 0x35: /* OBJECT */		//对象
 		case 0x36: /* STRING */		//字符串
 		case 0x37: /* DIRECTIVE */	//预处理命令
+		{
+			//防止发生异常,保证4字节的字符长度在有效区域内
+			if (lpDecObj->nInputPos >= lpDecObj->nInputSize - 4)
 			{
-				//防止发生异常,保证4字节的字符长度在有效区域内
-				if (lpDecObj->nInputPos >= lpDecObj->nInputSize-4) 
-				{
-					lpDecObj->nError = 1;
-					break;
-				}
-
-				//取4字节的字符数
-				UINT nNumberOfChars = *(DWORD *)(&lpDecObj->lpInputPtr[lpDecObj->nInputPos]);
-				UINT nNumberOfBytes = nNumberOfChars*sizeof(WCHAR);
-				lpDecObj->nInputPos += 4;
-
-				//校验有效范围
-				if ((lpDecObj->nInputSize < nNumberOfBytes) 
-					|| (lpDecObj->nInputPos + nNumberOfBytes >= lpDecObj->nInputSize))
-				{
-					lpDecObj->nError = 1;
-					break;
-				}
-
-				//添加前缀
-				const static BYTE EA06_prefixes[] = {'\0', '\0', '@', '$', '\0', '.', '"', '\0'};
-				if (0 != EA06_prefixes[nOpCode-0x30])
-				{
-					lpOutText[lpDecObj->nOutputPos++] = EA06_prefixes[nOpCode-0x30];
-				}				
-
-				//字符处理
-				if (nNumberOfChars) 
-				{
-					for (UINT i=0; i<nNumberOfBytes; i+=2) 
-					{
-						lpDecObj->lpInputPtr[lpDecObj->nInputPos+i] ^= (BYTE)nNumberOfChars;
-						lpDecObj->lpInputPtr[lpDecObj->nInputPos+i+1] ^= (BYTE)(nNumberOfChars>>8);
-					}
-					CopyMemory(&lpOutText[lpDecObj->nOutputPos], &lpDecObj->lpInputPtr[lpDecObj->nInputPos], nNumberOfBytes);
-
-					//输出位置后移
-					lpDecObj->nOutputPos += nNumberOfChars;
-					lpDecObj->nInputPos += nNumberOfBytes;
-				}
-
-				//添加后缀
-				const static BYTE EA06_postfixes[] = {' ', '\0', ' ', ' ', '\0', ' ', '"', ' '};
-				if (0 != EA06_postfixes[nOpCode-0x30])
-				{
-					lpOutText[lpDecObj->nOutputPos++] = EA06_postfixes[nOpCode-0x30];
-				}
+				lpDecObj->nError = 1;
+				break;
 			}
-			break;
 
-			//操作符部分
+			//取4字节的字符数
+			UINT nNumberOfChars = *(DWORD*)(&lpDecObj->lpInputPtr[lpDecObj->nInputPos]);
+			UINT nNumberOfBytes = nNumberOfChars * sizeof(WCHAR);
+			lpDecObj->nInputPos += 4;
+
+			//校验有效范围
+			if ((lpDecObj->nInputSize < nNumberOfBytes)
+				|| (lpDecObj->nInputPos + nNumberOfBytes >= lpDecObj->nInputSize))
+			{
+				lpDecObj->nError = 1;
+				break;
+			}
+
+			//添加前缀
+			const static BYTE EA06_prefixes[] = { '\0', '\0', '@', '$', '\0', '.', '"', '\0' };
+			if (0 != EA06_prefixes[nOpCode - 0x30])
+			{
+				lpOutText[lpDecObj->nOutputPos++] = EA06_prefixes[nOpCode - 0x30];
+			}
+
+			//字符处理
+			if (nNumberOfChars)
+			{
+				for (UINT i = 0; i < nNumberOfBytes; i += 2)
+				{
+					lpDecObj->lpInputPtr[lpDecObj->nInputPos + i] ^= (BYTE)nNumberOfChars;
+					lpDecObj->lpInputPtr[lpDecObj->nInputPos + i + 1] ^= (BYTE)(nNumberOfChars >> 8);
+				}
+				CopyMemory(&lpOutText[lpDecObj->nOutputPos], &lpDecObj->lpInputPtr[lpDecObj->nInputPos], nNumberOfBytes);
+
+				//输出位置后移
+				lpDecObj->nOutputPos += nNumberOfChars;
+				lpDecObj->nInputPos += nNumberOfBytes;
+			}
+
+			//添加后缀
+			const static BYTE EA06_postfixes[] = { ' ', '\0', ' ', ' ', '\0', ' ', '"', ' ' };
+			if (0 != EA06_postfixes[nOpCode - 0x30])
+			{
+				lpOutText[lpDecObj->nOutputPos++] = EA06_postfixes[nOpCode - 0x30];
+			}
+		}
+		break;
+
+		//操作符部分
 		case 0x40: /* , */
 		case 0x41: /* = */
 		case 0x42: /* > */
@@ -628,72 +633,136 @@ BOOL EA06_ConvertOPCode2UnicodeScript(AUTOIT_EA06_DECOMPILE_STRUCT *lpDecObj)
 		case 0x54: /* /= */
 		case 0x55: /* *= */
 		case 0x56: /* &= */
-			{					
-				//操作符定义
-				const static WCHAR *EA06_opers[] = 
-				{
-					L",",	L"=",	L">",	L"<",	L"<>",	L">=",	L"<=",	L"(", 
-					L")",	L"+",	L"-",	L"/",	L"*",	L"&",	L"[",	L"]",
-					L"==",	L"^",	L"+=",	L"-=",	L"/=",	L"*=",	L"&="
-				};
-
-				const static BYTE EA06_opPostfixes[] = 
-				{
-					' ',	' ',	' ',	' ',	' ',	' ',	' ',	'\0',
-					' ',	' ',	' ',	' ',	' ',	' ',	'\0',	'\0',
-					' ',	' ',	' ',	' ',	' ',	' ',	' ',	' ',
-				};
-
-				//消除反括号及逗号前的空格
-				if (0x48 == nOpCode || 0x40 == nOpCode)
-				{					
-					if (lpOutText[lpDecObj->nOutputPos-1] == ' ')
-					{
-						lpDecObj->nOutputPos--;
-					}
-				}
-
-				//部分操作符后面需要添加空格
-				lpDecObj->nOutputPos += _snwprintf(&lpOutText[lpDecObj->nOutputPos], 4, L"%s", EA06_opers[nOpCode-0x40]);
-				if (0 != EA06_opPostfixes[nOpCode-0x40])
-				{
-					lpOutText[lpDecObj->nOutputPos++] = EA06_opPostfixes[nOpCode-0x40];
-				}
-
-				break;
-			}
-
-		case 0x7F:	//行结束
+		{
+			//操作符定义
+			const static WCHAR* EA06_opers[] =
 			{
-				dwProcessedLine++;
-				lpDecObj->nLineCount--;
-				if (0 != lpDecObj->nLineCount)
-				{
-					//消除行末多余的空格
-					if (lpOutText[lpDecObj->nOutputPos-1] == ' ')
-					{
-						lpDecObj->nOutputPos--;
-					}
+				L",",	L"=",	L">",	L"<",	L"<>",	L">=",	L"<=",	L"(",
+				L")",	L"+",	L"-",	L"/",	L"*",	L"&",	L"[",	L"]",
+				L"==",	L"^",	L"+=",	L"-=",	L"/=",	L"*=",	L"&="
+			};
 
-					//添加回车换行
-					lpOutText[lpDecObj->nOutputPos++] = '\r';
-					lpOutText[lpDecObj->nOutputPos++] = '\n';
-				}
-				else
-				{
-					//消除文件末尾多余的空格
-					if (lpOutText[lpDecObj->nOutputPos-1] == ' ')
-					{
-						lpOutText[lpDecObj->nOutputPos-1] = 0;
-					}
-				}
+			const static BYTE EA06_opPostfixes[] =
+			{
+				' ',	' ',	' ',	' ',	' ',	' ',	' ',	'\0',
+				' ',	' ',	' ',	' ',	' ',	' ',	'\0',	'\0',
+				' ',	' ',	' ',	' ',	' ',	' ',	' ',	' ',
+			};
 
-				break;
+			//消除反括号及逗号前的空格
+			if (0x48 == nOpCode || 0x40 == nOpCode)
+			{
+				if (lpOutText[lpDecObj->nOutputPos - 1] == ' ')
+				{
+					lpDecObj->nOutputPos--;
+				}
 			}
+
+			//部分操作符后面需要添加空格
+			lpDecObj->nOutputPos += _snwprintf(&lpOutText[lpDecObj->nOutputPos], 4, L"%s", EA06_opers[nOpCode - 0x40]);
+			if (0 != EA06_opPostfixes[nOpCode - 0x40])
+			{
+				lpOutText[lpDecObj->nOutputPos++] = EA06_opPostfixes[nOpCode - 0x40];
+			}
+
+			break;
+		}
+		// 对未知指令的 兼容性处理
+		case 0x57:
+		case 0x58:
+		case 0x59:
+		case 0x5A:
+		case 0x5B:
+		case 0x5C:
+		case 0x5D:
+		case 0x5E:
+		case 0x5F:
+		case 0x60:
+		case 0x61:
+		case 0x62:
+		case 0x63:
+		case 0x64:
+		case 0x65:
+		case 0x66:
+		case 0x67:
+		case 0x68:
+		case 0x69:
+		case 0x6A:
+		case 0x6B:
+		case 0x6C:
+		case 0x6D:
+		case 0x6E:
+		case 0x6F:
+		case 0x70:
+		case 0x71:
+		case 0x72:
+		case 0x73:
+		case 0x74:
+		case 0x75:
+		case 0x76:
+		case 0x77:
+		case 0x78:
+		case 0x79:
+		case 0x7A:
+		case 0x7B:
+		case 0x7C:
+		case 0x7D:
+		case 0x7E:
+		{
+
+
+			break;
+		}
+		case 0x7F:	//行结束
+		{
+			dwProcessedLine++;
+			lpDecObj->nLineCount--;
+			if (0 != lpDecObj->nLineCount)
+			{
+				//消除行末多余的空格
+				if (lpOutText[lpDecObj->nOutputPos - 1] == ' ')
+				{
+					lpDecObj->nOutputPos--;
+				}
+
+				//添加回车换行
+				lpOutText[lpDecObj->nOutputPos++] = '\r';
+				lpOutText[lpDecObj->nOutputPos++] = '\n';
+			}
+			else
+			{
+				//消除文件末尾多余的空格
+				if (lpOutText[lpDecObj->nOutputPos - 1] == ' ')
+				{
+					lpOutText[lpDecObj->nOutputPos - 1] = 0;
+				}
+			}
+
+			break;
+		}
 
 		default:
+		{
 			//这里有未知的OP操作码
-			lpDecObj->nError = 1;
+			//lpDecObj->nError = 1;
+
+			//部分操作符后面需要添加空格
+			lpDecObj->nOutputPos += _snwprintf(&lpOutText[lpDecObj->nOutputPos], 4, L"%s0x%x", L"??UnknowOPCode:", nOpCode);
+			lpOutText[lpDecObj->nOutputPos++] = ' ';
+
+			if (!bNeedTipsUkOpCode) {
+				break;
+			}
+			char buffer[256] = { 0 };
+			char format[] = "一个意外的OpCode:0x%x,\n我们会尝试跳过未知的OpCode,强制生成后续代码,这意味着 新版新增的指令 会在源码中以 ??Unknow??标记.\n\n \
+				不再提醒我?";
+			sprintf(buffer, format, nOpCode);
+			int status = MessageBoxA(0, buffer, "Tips", MB_OK | MB_DEFBUTTON1);
+			if (status == IDOK) {
+				bNeedTipsUkOpCode = false;
+			}
+
+		}
 		}
 	} while (!lpDecObj->nError && lpDecObj->nLineCount && lpDecObj->nInputPos < lpDecObj->nInputSize);
 
