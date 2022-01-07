@@ -1,0 +1,2 @@
+# AutoItDec
+ Decode AutoIt

@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="DecKernel">
+      <UniqueIdentifier>{aec58ccd-4a2c-4f4d-98a3-2ab5d3fc4e1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DecKernel\UnCompress">
+      <UniqueIdentifier>{27329728-dbab-4aed-bad3-42bbd6efdaab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DecKernel\Decompile">
+      <UniqueIdentifier>{f99cd071-f431-4f0f-8641-10ccd88b8271}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DecKernel\Interface">
+      <UniqueIdentifier>{d9c592c9-c3e9-4d8e-8575-da4af2209c29}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EA03_UnCompress.cpp">
+      <Filter>DecKernel\UnCompress</Filter>
+    </ClCompile>
+    <ClCompile Include="EANEW_UnCompress.cpp">
+      <Filter>DecKernel\UnCompress</Filter>
+    </ClCompile>
+    <ClCompile Include="EA03_Decompile.cpp">
+      <Filter>DecKernel\Decompile</Filter>
+    </ClCompile>
+    <ClCompile Include="EA04_Decompile.cpp">
+      <Filter>DecKernel\Decompile</Filter>
+    </ClCompile>
+    <ClCompile Include="EA05_Decompile.cpp">
+      <Filter>DecKernel\Decompile</Filter>
+    </ClCompile>
+    <ClCompile Include="EA06_Decompile.cpp">
+      <Filter>DecKernel\Decompile</Filter>
+    </ClCompile>
+    <ClCompile Include="Decompile.cpp">
+      <Filter>DecKernel\Interface</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EA03_UnCompress.h">
+      <Filter>DecKernel\UnCompress</Filter>
+    </ClInclude>
+    <ClInclude Include="EANEW_UnCompress.h">
+      <Filter>DecKernel\UnCompress</Filter>
+    </ClInclude>
+    <ClInclude Include="EA03_Decompile.h">
+      <Filter>DecKernel\Decompile</Filter>
+    </ClInclude>
+    <ClInclude Include="EA04_Decompile.h">
+      <Filter>DecKernel\Decompile</Filter>
+    </ClInclude>
+    <ClInclude Include="EA05_Decompile.h">
+      <Filter>DecKernel\Decompile</Filter>
+    </ClInclude>
+    <ClInclude Include="EA06_Decompile.h">
+      <Filter>DecKernel\Decompile</Filter>
+    </ClInclude>
+    <ClInclude Include="Include.h">
+      <Filter>DecKernel\Decompile</Filter>
+    </ClInclude>
+    <ClInclude Include="Decompile.h">
+      <Filter>DecKernel\Interface</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
